@@ -5,28 +5,39 @@ import com.credibanco.card.entidades.Transaction;
 import com.credibanco.card.repositories.TransactionRepository;
 import com.credibanco.card.services.TransactionService;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
-@RequiredArgsConstructor
 public class TransactionServiceImpl implements TransactionService {
 
-    private final TransactionRepository transactionRepository;
-
-    private final ModelMapper modelMapper;
-
-    private final ObjectMapper objectMapper;
+    @Autowired
+    private  TransactionRepository transactionRepository;
+    @Autowired
+    private  ModelMapper modelMapper;
+    @Autowired
+    private  ObjectMapper objectMapper;
 
     @Override
-    public void saveTransaction(TransactionDTO transactionDTO){
+    public Transaction saveTransaction(TransactionDTO transactionDTO){
         try {
-            Transaction trans = modelMapper.map(transactionDTO, Transaction.class);
-            transactionRepository.save(trans);
+            Transaction trans = modelHelperToEntity(transactionDTO);
+            return transactionRepository.save(trans);
         }catch (Exception ex){
             System.out.println("Error :" + ex);
+            return null;
         }
+    }
+
+    private Transaction modelHelperToEntity(TransactionDTO transactionDTO){
+        Transaction transaction = new Transaction();
+        transaction.setTransactionDate(transactionDTO.getTransactionDate());
+        transaction.setId(transactionDTO.getId());
+        transaction.setStatus(transactionDTO.getStatus());
+        transaction.setAmount(transactionDTO.getAmount());
+        transaction.setCardId(transactionDTO.getCardId());
+        return transaction;
     }
 
 
@@ -34,12 +45,22 @@ public class TransactionServiceImpl implements TransactionService {
     public TransactionDTO getTransactionById(int idTransaction){
         try {
             Transaction trans = transactionRepository.findById(idTransaction);
-            TransactionDTO transactionDTO = modelMapper.map(trans, TransactionDTO.class);
+            TransactionDTO transactionDTO = modelHelperToDTO(trans);
             return transactionDTO;
         }catch (Exception ex){
             System.out.println("Error :: " + ex);
             return null;
         }
+    }
+
+    private TransactionDTO modelHelperToDTO(Transaction transaction){
+        TransactionDTO transactionDTO = new TransactionDTO();
+        transactionDTO.setStatus(transaction.getStatus());
+        transactionDTO.setCardId(transaction.getCardId());
+        transactionDTO.setTransactionDate(transaction.getTransactionDate());
+        transactionDTO.setAmount(transaction.getAmount());
+        transactionDTO.setId(transaction.getId());
+        return transactionDTO;
     }
 
 

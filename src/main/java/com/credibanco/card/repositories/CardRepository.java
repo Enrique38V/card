@@ -18,8 +18,9 @@ public interface CardRepository extends JpaRepository<Card, Long> {
 
     Card findBycardNumber(String cardId);
 
+
     @Modifying
     @Query(value = "UPDATE cards SET balance = :balance WHERE card_number = :cardId", nativeQuery = true)
-    void balanceTopUp(@Param("cardId") String cardId, @Param("balance")BigDecimal balance);
+    int balanceTopUp(@Param("cardId") String cardId, @Param("balance")BigDecimal balance);
 
 }

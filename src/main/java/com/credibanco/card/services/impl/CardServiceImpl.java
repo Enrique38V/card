@@ -7,6 +7,7 @@ import com.credibanco.card.repositories.CardRepository;
 import com.credibanco.card.services.CardService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.modelmapper.ModelMapper;
 
@@ -14,33 +15,46 @@ import java.math.BigDecimal;
 import java.util.Calendar;
 
 @Service
-@RequiredArgsConstructor
 public class CardServiceImpl implements CardService {
 
-    private final ModelMapper modelMapper;
+    @Autowired
+    private ModelMapper modelMapper;
 
-    private final CardRepository cardRepository;
+    @Autowired
+    private CardRepository cardRepository;
 
     @Override
-    public void saveCard(CardDTO cardDTO) {
+    public Card saveCard(CardDTO cardDTO) {
         cardDTO.setBalance(BigDecimal.ZERO);
         Calendar cal = Calendar.getInstance();
         cardDTO.setExpirationDate(
                 (cal.get(Calendar.MONTH)+1)+"/"+(cal.get(Calendar.YEAR)+3));
         cardDTO.setCardHolderName("");
         cardDTO.setState(GeneralConstants.ACTIVO);
-        Card card = modelMapper.map(cardDTO, Card.class);
-        cardRepository.save(card);
+        Card card = modelHelper(cardDTO);
+        return cardRepository.save(card);
+    }
+
+    private Card modelHelper(CardDTO cardDTO){
+       Card card = new Card();
+       card.setId(cardDTO.getId());
+       card.setCardNumber(cardDTO.getCardNumber());
+       card.setProductId(cardDTO.getProductId());
+       card.setExpirationDate(cardDTO.getExpirationDate());
+       card.setCardholderName(cardDTO.getCardHolderName());
+       card.setBalance(cardDTO.getBalance());
+       return card;
     }
 
 
     @Transactional
     @Override
-    public void chageStatusCard(String cardId, Short status) {
+    public int chageStatusCard(String cardId, Short status) {
         try{
-           cardRepository.activateCard(cardId, status);
+           return cardRepository.activateCard(cardId, status);
         }catch (Exception e){
             System.out.println("Error :: " +e );
+            return 0;
         }
     }
 
@@ -58,8 +72,10 @@ public class CardServiceImpl implements CardService {
 
     @Override
     @Transactional
-    public void balanceTopUp(String cardId, BigDecimal balance){
-        cardRepository.balanceTopUp(cardId, balance);
+    public int balanceTopUp(String cardId, BigDecimal balance){
+        return cardRepository.balanceTopUp(cardId, balance);
     }
+
+
 
 }

@@ -2,16 +2,17 @@ package com.credibanco.card.services;
 
 import com.credibanco.card.constants.GeneralConstants;
 import com.credibanco.card.dto.CardDTO;
+import com.credibanco.card.entidades.Card;
 
 import java.math.BigDecimal;
 
 public interface CardService {
 
-    void saveCard(CardDTO cardDTO);
+    Card saveCard(CardDTO cardDTO);
 
-    void chageStatusCard(String cardId, Short state);
+    int chageStatusCard(String cardId, Short state);
 
-    void balanceTopUp(String cardId, BigDecimal balance);
+    int balanceTopUp(String cardId, BigDecimal balance);
 
     BigDecimal checkBalance(String cardId);
 }
